@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "87586909498",
+    "firebase_url": "https://cleverhome-5b538.firebaseio.com",
+    "project_id": "cleverhome-5b538",
+    "storage_bucket": "cleverhome-5b538.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:87586909498:android:8b6f4785a0f251dc",
+        "android_client_info": {
+          "package_name": "com.cleverpath.firstflut"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "87586909498-2lvhq80f3bmn6q15c1dm4ov7tm9djdm4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa60uhjke2PRddis2AXm9QYU1_W9rm3pI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
