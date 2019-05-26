@@ -192,6 +192,7 @@ class TeamListState extends State<TeamList> {
           elevation: 3.0,
           child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
             ListTile(
+              
               title: Text(
                   new DateFormat.yMMMMEEEEd("en_US").format(record.timeFrom.toDate())),
               trailing:
@@ -205,7 +206,9 @@ class TeamListState extends State<TeamList> {
                   record.waitlistCount.toString() +
                   " Waitlist"),
               onTap: () => print(record),
+              }
             ),
+              
             ButtonTheme.bar(
               child: ButtonBar(
                 children: <Widget>[
