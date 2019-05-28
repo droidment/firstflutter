@@ -161,8 +161,8 @@ class TeamListState extends State<TeamList> {
               padding: const EdgeInsets.all(8.0),
               itemCount: entries.length,
               itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  height: 50,
+                return Container(    
+                  height: 51,
                   color: Colors.amber[colorCodes[index]],
                   child: Center(child: Text('Entry ${entries[index]}')),
                 );
