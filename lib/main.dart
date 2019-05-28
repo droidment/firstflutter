@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -12,7 +14,7 @@ class MyApp extends StatelessWidget {
   static FirebaseAnalytics analytics = FirebaseAnalytics();
   static FirebaseAnalyticsObserver observer =
       FirebaseAnalyticsObserver(analytics: analytics);
- 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -51,11 +53,13 @@ class TeamListState extends State<TeamList> {
   InputType inputType = InputType.both;
   bool editable = true;
   DateTime date;
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
 
   // final _biggerFont = const TextStyle(fontSize: 18.0);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: _scaffoldKey,
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () {
@@ -109,55 +113,141 @@ class TeamListState extends State<TeamList> {
     // body: _buildBody(context));
   }
 
-  Widget _buildAddGame(BuildContext context) {
+  Widget _viewGame(BuildContext context, GameModel record) {
+    var timeStr = " ";
+    var toDateStr;
+    if (record.timeFrom != null) {
+      toDateStr =
+          new DateFormat.yMMMMEEEEd("en_US").format(record.timeFrom.toDate());
+      var fromTimeStr =
+          new DateFormat.Hm("en_US").format(record.timeFrom.toDate());
+      var toTimeStr = new DateFormat.Hm("en_US").format(record.timeTo.toDate());
+      timeStr = "From " + fromTimeStr + " to " + toTimeStr;
+    }
+    // var fromDateStr = new DateFormat.yMMMMEEEEd("en_US").format(record.timeTo.toDate()) ?? "";
+    var yesCount = (record.yesCount == null) ? "0" : record.yesCount.toString();
+    var noCount = (record.noCount == null) ? "0" : record.noCount.toString();
+    var maybeCount =
+        (record.maybeCount == null) ? "0" : record.maybeCount.toString();
+    var waitlistCount = (record.waitlistCount == null)
+        ? ""
+        : record.waitlistCount.toString() + " Waitlist |";
+    var cap1Name = record.captain1Name ?? "";
+    var cap2Name = record.captain2Name ?? "";
+    var locationStr = record.location ?? "";
+    final List<String> entries = <String>['A', 'B', 'C','A', 'B', 'C','A', 'B', 'C','A', 'B', 'C'];
+    final List<int> colorCodes = <int>[600, 500, 100,600, 500, 100,600, 500, 100,600, 500, 100];
+    return new Column(children: <Widget>[
+      new ListTile(
+          leading: const Icon(Icons.access_time, color: Colors.indigoAccent),
+          title: Text(toDateStr),
+          subtitle: Text(timeStr)),
+      new ListTile(
+          leading: const Icon(Icons.location_on, color: Colors.indigoAccent),
+          title: Text(locationStr)),
+      new ListTile(
+        leading: const Icon(Icons.thumbs_up_down, color: Colors.indigoAccent),
+        title: Text("Yes : " + yesCount),
+        subtitle: Text("No : " + noCount + " | Maybe : " + maybeCount),
+      ),
+      new ListTile(
+          leading: const Icon(Icons.people_outline, color: Colors.indigoAccent),
+          title: Text(cap1Name + " versus " + cap2Name)),
+      new Container(
+        width: MediaQuery.of(context).size.width * 0.9,
+        height: MediaQuery.of(context).size.height * 0.9,
+          // new Expanded(
+          child: ListView.builder(
+              padding: const EdgeInsets.all(8.0),
+              itemCount: entries.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  height: 50,
+                  color: Colors.amber[colorCodes[index]],
+                  child: Center(child: Text('Entry ${entries[index]}')),
+                );
+              })),
+    ]);
+    // ]);
+  }
+
+  Widget _buildAddGame(BuildContext _context) {
     TextEditingController fromDateController = TextEditingController();
     TextEditingController toDateController = TextEditingController();
     TextEditingController locationController = TextEditingController();
+    TextEditingController captain1Controller = TextEditingController();
+    TextEditingController captain2Controller = TextEditingController();
     return Form(
       key: _addGameFormKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          DateTimePickerFormField(
-            controller: fromDateController,
-            inputType: inputType,
-            format: formats[inputType],
-            editable: editable,
-            decoration: InputDecoration(
-                labelText: 'From', hasFloatingPlaceholder: false),
-            onChanged: (dt) {},
-          ),
-          DateTimePickerFormField(
-            controller: toDateController,
-            inputType: inputType,
-            format: formats[inputType],
-            editable: editable,
-            decoration:
-                InputDecoration(labelText: 'To', hasFloatingPlaceholder: false),
-            onChanged: (dt) => setState(() => date = dt),
-          ),
-          TextFormField(
-            controller: locationController,
-            decoration: InputDecoration(
-                labelText: 'Location', hasFloatingPlaceholder: true),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: OutlineButton(
-              highlightColor: Colors.amber,
-              onPressed: () async {
-                print(_addGameFormKey.currentState);
-                _addGameFormKey.currentState.save();
-                DateFormat df = new DateFormat("EEE, MMM yyyy dd h:mma");
-                var fromDate = df.parse(fromDateController.text);
-                var toDate = df.parse(fromDateController.text);
-                GameModel gm =  new GameModel(fromDate,toDate, locationController.text);
-                  gm.addGame();
-              },
-              child: Text('Submit'),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            DateTimePickerFormField(
+              controller: fromDateController,
+              inputType: inputType,
+              format: formats[inputType],
+              editable: editable,
+              decoration: InputDecoration(
+                  labelText: 'From', hasFloatingPlaceholder: false),
+              onChanged: (dt) {},
             ),
-          ),
-        ],
+            DateTimePickerFormField(
+              controller: toDateController,
+              inputType: inputType,
+              format: formats[inputType],
+              editable: editable,
+              decoration: InputDecoration(
+                  labelText: 'To', hasFloatingPlaceholder: false),
+              onChanged: (dt) => setState(() => date = dt),
+            ),
+            TextFormField(
+              controller: locationController,
+              decoration: InputDecoration(
+                  labelText: 'Location', hasFloatingPlaceholder: true),
+            ),
+            TextFormField(
+              controller: captain1Controller,
+              decoration: InputDecoration(
+                  labelText: 'Captain 1', hasFloatingPlaceholder: true),
+            ),
+            TextFormField(
+              controller: captain2Controller,
+              decoration: InputDecoration(
+                  labelText: 'Captain 2', hasFloatingPlaceholder: true),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: OutlineButton(
+                highlightColor: Colors.amber,
+                onPressed: () async {
+                  print(_addGameFormKey.currentState);
+                  _addGameFormKey.currentState.save();
+                  DateFormat df = new DateFormat("EEE, MMM yyyy dd h:mma");
+                  var fromDate = (fromDateController.text == "")
+                      ? DateTime.now()
+                      : df.parse(fromDateController.text);
+                  var toDate = (toDateController.text == "")
+                      ? DateTime.now()
+                      : df.parse(toDateController.text);
+                  GameModel gm = new GameModel(
+                      fromDate,
+                      toDate,
+                      locationController.text,
+                      captain1Controller.text,
+                      captain2Controller.text);
+                  await gm.addGame();
+                  _scaffoldKey.currentState.showSnackBar(new SnackBar(
+                    content: new Text("Added game successfully."),
+                  ));
+                  Navigator.of(_context, rootNavigator: true).pop();
+                  // Navigator.pop(_context);
+                },
+                child: Text('Submit'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -184,31 +274,40 @@ class TeamListState extends State<TeamList> {
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot gameData) {
     final record = GameModel.fromSnapshot(gameData);
+    var toDateStr = (record.timeFrom == null)
+        ? ""
+        : new DateFormat.yMMMMEEEEd("en_US").format(record.timeFrom.toDate());
+    // var fromDateStr = new DateFormat.yMMMMEEEEd("en_US").format(record.timeTo.toDate()) ?? "";
+    var yesCount =
+        (record.yesCount == null) ? "" : record.yesCount.toString() + " Yes | ";
+    var noCount =
+        (record.noCount == null) ? "" : record.noCount.toString() + " No | ";
+    var maybeCount = (record.maybeCount == null)
+        ? ""
+        : record.maybeCount.toString() + " Maybe | ";
+    var waitlistCount = (record.waitlistCount == null)
+        ? ""
+        : record.waitlistCount.toString() + " Waitlist |";
+    var cap1Name = record.captain1Name ?? "";
+    var cap2Name = record.captain2Name ?? "";
+
     String dropdownValue = '+0';
     return Padding(
-      key: ValueKey(record.captain1),
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-      child: Card(
+        key: ValueKey(record.captain1),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+        child: Card(
           elevation: 3.0,
           child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
             ListTile(
-              
-              title: Text(
-                  new DateFormat.yMMMMEEEEd("en_US").format(record.timeFrom.toDate())),
-              trailing:
-                  Text(record.captain1Name + " vs " + record.captain2Name),
-              subtitle: Text(record.yesCount.toString() +
-                  " Yes | " +
-                  record.noCount.toString() +
-                  " No  | " +
-                  record.maybeCount.toString() +
-                  " Maybe | " +
-                  record.waitlistCount.toString() +
-                  " Waitlist"),
-              onTap: () => print(record),
-              }
-            ),
-              
+                title: Text(toDateStr),
+                trailing: Text(cap1Name + " vs " + cap2Name),
+                subtitle: Text(yesCount + noCount + maybeCount + waitlistCount),
+                onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (_) =>
+                          new AlertDialog(content: _viewGame(context, record)));
+                }),
             ButtonTheme.bar(
               child: ButtonBar(
                 children: <Widget>[
@@ -263,8 +362,8 @@ class TeamListState extends State<TeamList> {
                 ],
               ),
             ),
-          ])),
-    );
+          ]),
+        ));
   }
 }
 
@@ -444,7 +543,7 @@ class GameModel extends Model {
   String captain1Name;
   String captain2Name;
   String winner;
-  GeoPoint location;
+  String location;
   int yesCount;
   int noCount;
   int maybeCount;
@@ -452,10 +551,32 @@ class GameModel extends Model {
   int guestCount;
   DocumentReference reference;
 
-  GameModel(DateTime from, DateTime to, String location){
+  GameModel(DateTime from, DateTime to, String locationStr, String cap1Name,
+      String cap2Name) {
     timeFrom = new Timestamp.fromDate(from);
     timeTo = new Timestamp.fromDate(to);
-    location = location;
+    location = locationStr;
+    captain1Name = cap1Name;
+    captain2Name = cap2Name;
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      "Captain1": captain1,
+      "Captain2": captain2,
+      "TimeFrom": timeFrom,
+      "TimeTo": timeTo,
+      "Score": score,
+      "Captain1Name": captain1Name,
+      "Captain2Name": captain2Name,
+      "Winner": winner,
+      "Location": location,
+      "YesCount": 0,
+      "NoCount": 0,
+      "MaybeCount": 0,
+      "WaitlistCount": 0,
+      "GuestCount": 0
+    };
   }
 
   GameModel.fromMap(Map<String, dynamic> map, {this.reference}) {
@@ -477,11 +598,10 @@ class GameModel extends Model {
     location = map["Location"];
   }
 
-  addGame() {
+  addGame() async {
     Firestore fireStore = Firestore.instance;
     CollectionReference gameReference = fireStore.collection("Game");
-    gameReference
-        .add({"From": timeFrom, "To": timeTo, "Location": location}).then((result) {
+    gameReference.add(this.toMap()).then((result) {
       return result;
     });
   }
