@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import '../models/GameModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class PlayerList extends StatefulWidget {
-  const PlayerList({Key key, @required this.game, @required this.status})
+class GamePlayerList extends StatefulWidget {
+  const GamePlayerList({Key key, @required this.game, @required this.status})
       : super(key: key);
 
   final GameModel game;
   final String status;
   @override
-  PlayerListState createState() => new PlayerListState(game, status);
+  GamePlayerListState createState() => new GamePlayerListState(game, status);
 }
 
-class PlayerListState extends State<PlayerList> {
-  PlayerListState(this.game, this.status);
+class GamePlayerListState extends State<GamePlayerList> {
+  GamePlayerListState(this.game, this.status);
   final String status;
   final GameModel game;
   final Firestore fireStore = Firestore.instance;

@@ -5,8 +5,8 @@ import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'notes.dart';
-import 'playerList.dart';
+import 'team.dart';
+import 'gamePlayerList.dart';
 import '../models/GameModel.dart';
 import '../models/Rsvp.dart';
 
@@ -91,7 +91,7 @@ class GameListState extends State<GameList> {
                   Navigator.pop(context);
                   Navigator.of(context).push(new PageRouteBuilder(
                       pageBuilder: (BuildContext context, _, __) {
-                    return new Notes();
+                    return new Team();
                   }, transitionsBuilder:
                           (_, Animation<double> animation, __, Widget child) {
                     return new FadeTransition(opacity: animation, child: child);
@@ -277,16 +277,21 @@ class GameListState extends State<GameList> {
         child: Card(
           elevation: 3.0,
           child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-            ListTile(
-                title: Text(toDateStr),
-                trailing: Text(cap1Name + " vs " + cap2Name),
-                subtitle: Text(yesCount + noCount + maybeCount + waitlistCount),
-                onTap: () {
-                  showDialog(
-                      context: context,
-                      builder: (_) =>
-                          new AlertDialog(content: _viewGame(context, record)));
-                }),
+            Material(
+              child: InkWell(
+                  child: ListTile(
+                    title: Text(toDateStr),
+                    trailing: Text(cap1Name + " vs " + cap2Name),
+                    subtitle:
+                        Text(yesCount + noCount + maybeCount + waitlistCount),
+                  ),
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (_) => new AlertDialog(
+                            content: _viewGame(context, record)));
+                  }),
+            ),
             ButtonTheme.bar(
               child: ButtonBar(
                 children: <Widget>[
@@ -390,7 +395,7 @@ class GameListState extends State<GameList> {
               leading:
                   const Icon(Icons.people_outline, color: Colors.indigoAccent),
               title: Text(cap1Name + " versus " + cap2Name)),
-          new PlayerList(game: record, status: "No"),
+          new GamePlayerList(game: record, status: "No"),
           //  new PlayerList(game: record, status: "No"),
         ]));
     // ]);
