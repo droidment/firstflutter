@@ -5,44 +5,24 @@ import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'screens/notes.dart';
-import 'screens/playerList.dart';
-import 'screens/gameList.dart';
-import 'models/GameModel.dart';
-import 'models/Rsvp.dart';
+import 'notes.dart';
+import 'playerList.dart';
+import '../models/GameModel.dart';
+import '../models/Rsvp.dart';
 
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
-  static FirebaseAnalytics analytics = FirebaseAnalytics();
-  static FirebaseAnalyticsObserver observer =
-      FirebaseAnalyticsObserver(analytics: analytics);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-          primarySwatch: Colors.amber,
-          secondaryHeaderColor: Colors.amberAccent),
-      navigatorObservers: <NavigatorObserver>[observer],
-      home: GameList(),
-    );
-  }
-}
-
-class TeamList extends StatefulWidget {
-  TeamList({Key key, this.title, this.analytics, this.observer})
+class GameList extends StatefulWidget {
+  GameList({Key key, this.title, this.analytics, this.observer})
       : super(key: key);
 
   final String title;
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
-  TeamListState createState() => new TeamListState(analytics, observer);
+  GameListState createState() => new GameListState(analytics, observer);
 }
 
-class TeamListState extends State<TeamList> {
-  TeamListState(this.analytics, this.observer);
+class GameListState extends State<GameList> {
+  GameListState(this.analytics, this.observer);
   final FirebaseAnalyticsObserver observer;
   final FirebaseAnalytics analytics;
   final Firestore fireStore = Firestore.instance;
@@ -416,5 +396,3 @@ class TeamListState extends State<TeamList> {
     // ]);
   }
 }
-
-
