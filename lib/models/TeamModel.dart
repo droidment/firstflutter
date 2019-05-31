@@ -13,8 +13,8 @@ class TeamModel  {
   int maxGamePlayerCount;
   bool allowWaitlist;
 
-  TeamModel(List<String> this.playerNames, String this.teamName, String this.homeCourt,
-      String this.adminName, bool this.allowMaybe, bool this.allowGuest,int this.maxGamePlayerCount, bool this.allowWaitlist) ;
+  TeamModel(this.playerNames,this.teamName,this.homeCourt,
+      this.adminName, this.allowMaybe,this.allowGuest,this.maxGamePlayerCount, this.allowWaitlist) ;
 
 
   Map<String, dynamic> toMap() {
@@ -50,7 +50,12 @@ class TeamModel  {
   }
 
   addPlayersToTeam(String sPlayerName){
-      this.playerNames.add(sPlayerName);
+    this.playerNames.add(sPlayerName);
+    Firestore fireStore = Firestore.instance;
+    CollectionReference teamReference = fireStore.collection("Team");
+    teamReference.document().updateData(this.toMap()).then((result) {
+      return result;
+    });
   } 
 
   TeamModel.fromSnapshot(DocumentSnapshot snapshot)
