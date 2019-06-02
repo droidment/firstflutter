@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
+// import 'package:firebase_analytics/firebase_analytics.dart';
+// import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -11,20 +11,20 @@ import '../models/GameModel.dart';
 import '../models/Rsvp.dart';
 
 class GameList extends StatefulWidget {
-  GameList({Key key, this.title, this.analytics, this.observer})
+  GameList({Key key, this.title})
       : super(key: key);
 
   final String title;
-  final FirebaseAnalytics analytics;
-  final FirebaseAnalyticsObserver observer;
+  // final FirebaseAnalytics analytics;
+  // final FirebaseAnalyticsObserver observer;
 
-  GameListState createState() => new GameListState(analytics, observer);
+  GameListState createState() => new GameListState();
 }
 
 class GameListState extends State<GameList> {
-  GameListState(this.analytics, this.observer);
-  final FirebaseAnalyticsObserver observer;
-  final FirebaseAnalytics analytics;
+  GameListState();
+  // final FirebaseAnalyticsObserver observer;
+  // final FirebaseAnalytics analytics;
   final Firestore fireStore = Firestore.instance;
   final _addGameFormKey = GlobalKey<FormState>();
 
@@ -235,7 +235,7 @@ class GameListState extends State<GameList> {
     return StreamBuilder<QuerySnapshot>(
       stream: fireStore.collection('Game').snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return LinearProgressIndicator();
+        if (!snapshot.hasData) return CircularProgressIndicator();
 
         return _buildList(context, snapshot.data.documents);
       },
@@ -272,7 +272,7 @@ class GameListState extends State<GameList> {
 
     String dropdownValue = '+0';
     return Padding(
-        key: ValueKey(record.captain1),
+        // key: ValueKey(record.captain1),
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
         child: Card(
           elevation: 3.0,

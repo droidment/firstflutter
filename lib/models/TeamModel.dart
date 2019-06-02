@@ -41,7 +41,7 @@ class TeamModel  {
       allowWaitlist = map["AllowWaitlist"];
   }
 
-  addTeam() async {
+  Future<DocumentReference> get addTeam async {
     Firestore fireStore = Firestore.instance;
     CollectionReference teamReference = fireStore.collection("Team");
     teamReference.add(this.toMap()).then((result) {
