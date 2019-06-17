@@ -1,12 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:firstflut/screens/teamList.dart';
 // import 'package:firebase_analytics/firebase_analytics.dart';
 // import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'team.dart';
 import 'gamePlayerList.dart';
+import '../widgets/AppHeader.dart';
+import '../widgets/AppDrawer.dart';
+import '../widgets/AddGameWidget.dart';
 import '../models/GameModel.dart';
 import '../models/Rsvp.dart';
 
@@ -37,6 +40,7 @@ class GameListState extends State<GameList> {
   bool editable = true;
   DateTime date;
   var _scaffoldKey = GlobalKey<ScaffoldState>();
+  String teamName = "Katy Whackers";
 
   // final _biggerFont = const TextStyle(fontSize: 18.0);
   @override
@@ -50,185 +54,24 @@ class GameListState extends State<GameList> {
                 context: context,
                 builder: (_) => new AlertDialog(
                     title: new Text("Add new game"),
-                    content: _buildAddGame(context)));
+                    content: new AddGameWidget(addGameFormKey: _addGameFormKey, inputType: inputType, formats: formats, editable: editable, scaffoldKey: _scaffoldKey, context: context)));
           },
         ),
         // bottomNavigationBar: BottomAppBar(
         //   color: Colors.amberAccent,
-        //   child: Container(height: 50.0),
+        //   child: Container(height: 40.0),
         // ),
-        drawer: Drawer(
-          child: ListView(
-            children: <Widget>[
-              UserAccountsDrawerHeader(
-                accountName: Text("Raj Balakrishnan"),
-                accountEmail: Text("raj@gmail.com"),
-                currentAccountPicture: CircleAvatar(
-                  backgroundColor:
-                      Theme.of(context).platform == TargetPlatform.iOS
-                          ? Colors.blue
-                          : Colors.white,
-                  child: Text(
-                    "A",
-                    style: TextStyle(fontSize: 40.0),
-                  ),
-                ),
-              ),
-              ListTile(
-                title: Text("Setup Game"),
-                onTap: () {
-                  Navigator.pop(context);
-                  showDialog(
-                      context: context,
-                      builder: (_) => new AlertDialog(
-                          title: new Text("Add new game"),
-                          content: _buildAddGame(context)));
-                },
-              ),
-              ListTile(
-                title: Text("Setup Team"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.of(context).push(new PageRouteBuilder(
-                      pageBuilder: (BuildContext context, _, __) {
-                    return new Team();
-                  }, transitionsBuilder:
-                          (_, Animation<double> animation, __, Widget child) {
-                    return new FadeTransition(opacity: animation, child: child);
-                  }));
-                },
-              ),
-              ListTile(
-                title: Text("Setup Club"),
-                onTap: () {
-                  Navigator.pop(context);
-                  showDialog(
-                      context: context,
-                      builder: (_) => new AlertDialog(
-                          title: new Text("Add new game"),
-                          content: _buildAddGame(context)));
-                },
-              ),
-            ],
-          ),
-        ),
+        drawer: new AppDrawer(addGameFormKey: _addGameFormKey, inputType: inputType, formats: formats, editable: editable, scaffoldKey: _scaffoldKey),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
         body: NestedScrollView(
             headerSliverBuilder:
                 (BuildContext context, bool innerBoxIsScrolled) {
-              return <Widget>[
-                SliverAppBar(
-                    expandedHeight: 100.0,
-                    floating: false,
-                    pinned: true,
-                    flexibleSpace: FlexibleSpaceBar(
-                      centerTitle: true,
-                      title: Text("Katy Whackers",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24.0,
-                            shadows: <Shadow>[
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 3.0,
-                                color: Color.fromARGB(255, 0, 0, 0),
-                              ),
-                              Shadow(
-                                offset: Offset(3.0, 3.0),
-                                blurRadius: 8.0,
-                                color: Color.fromARGB(255, 0, 0, 0),
-                              ),
-                            ],
-                          )),
-                      background: ClipRRect(
-                          borderRadius: BorderRadius.circular(15.0),
-                          child: Image.asset("assets/volleyball_masthead.jpg",
-                              fit: BoxFit.fill)),
-                    )),
+               return <Widget>[
+                new AppHeader(title:teamName),
               ];
             },
             body: _buildBody(context)));
     // body: _buildBody(context));
-  }
-
-  Widget _buildAddGame(BuildContext _context) {
-    TextEditingController fromDateController = TextEditingController();
-    TextEditingController toDateController = TextEditingController();
-    TextEditingController locationController = TextEditingController();
-    TextEditingController captain1Controller = TextEditingController();
-    TextEditingController captain2Controller = TextEditingController();
-    return Form(
-      key: _addGameFormKey,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            DateTimePickerFormField(
-              controller: fromDateController,
-              inputType: inputType,
-              format: formats[inputType],
-              editable: editable,
-              decoration: InputDecoration(
-                  labelText: 'From', hasFloatingPlaceholder: false),
-              onChanged: (dt) {},
-            ),
-            DateTimePickerFormField(
-              controller: toDateController,
-              inputType: inputType,
-              format: formats[inputType],
-              editable: editable,
-              decoration: InputDecoration(
-                  labelText: 'To', hasFloatingPlaceholder: false),
-              onChanged: (dt) => setState(() => date = dt),
-            ),
-            TextFormField(
-              controller: locationController,
-              decoration: InputDecoration(
-                  labelText: 'Location', hasFloatingPlaceholder: true),
-            ),
-            TextFormField(
-              controller: captain1Controller,
-              decoration: InputDecoration(
-                  labelText: 'Captain 1', hasFloatingPlaceholder: true),
-            ),
-            TextFormField(
-              controller: captain2Controller,
-              decoration: InputDecoration(
-                  labelText: 'Captain 2', hasFloatingPlaceholder: true),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: OutlineButton(
-                highlightColor: Colors.amber,
-                onPressed: () async {
-                  _addGameFormKey.currentState.save();
-                  DateFormat df = new DateFormat("EEE, MMM yyyy dd h:mma");
-                  var fromDate = (fromDateController.text == "")
-                      ? DateTime.now()
-                      : df.parse(fromDateController.text);
-                  var toDate = (toDateController.text == "")
-                      ? DateTime.now()
-                      : df.parse(toDateController.text);
-                  GameModel gm = new GameModel(
-                      fromDate,
-                      toDate,
-                      locationController.text,
-                      captain1Controller.text,
-                      captain2Controller.text);
-                  await gm.addGame();
-                  _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                    content: new Text("Added game successfully."),
-                  ));
-                  Navigator.of(_context, rootNavigator: true).pop();
-                  // Navigator.pop(_context);
-                },
-                child: Text('Submit'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildBody(BuildContext context) {
@@ -401,3 +244,5 @@ class GameListState extends State<GameList> {
     // ]);
   }
 }
+
+

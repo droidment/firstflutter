@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firstflut/models/Players.dart';
-import 'package:firstflut/screens/DynamicFields.dart';
 import 'package:flutter/material.dart';
 import '../models/TeamModel.dart';
 import '../mixins/validation_mixin.dart';
@@ -35,7 +34,7 @@ class TeamState extends State<Team> with ValidationMixin {
     return Form(
         // key: _scaffoldKey,
         child: Padding(
-      padding: const EdgeInsets.only(top: 70, left: 20, right: 20, bottom: 10),
+      padding: const EdgeInsets.only(top: 40, left: 20, right: 20, bottom: 10),
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
