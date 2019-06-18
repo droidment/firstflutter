@@ -31,7 +31,7 @@ class TeamModel  {
   }
 
   TeamModel.fromMap(Map<String, dynamic> map) {
-      playerNames = map["PlayerName"];
+      playerNames = map['PlayerName']?.cast<String>();
       teamName = map["TeamName"];
       homeCourt = map["HomeCourt"];
       adminName = map["AdminName"];
