@@ -1,6 +1,7 @@
 
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:firstflut/screens/teamList.dart';
+import 'package:firstflut/screens/gameList.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firstflut/widgets/AddGameWidget.dart';
@@ -42,19 +43,14 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             title: Text("Games"),
-            onTap: () {
-              Navigator.pop(context);
-              showDialog(
-                  context: context,
-                  builder: (_) => new AlertDialog(
-                      title: new Text("Add new game"),
-                      content: new AddGameWidget(
-                          addGameFormKey: _addGameFormKey,
-                          inputType: inputType,
-                          formats: formats,
-                          editable: editable,
-                          scaffoldKey: _scaffoldKey,
-                          context: context)));
+            onTap: () {Navigator.pop(context);
+              Navigator.of(context).push(new PageRouteBuilder(
+                  pageBuilder: (BuildContext context, _, __) {
+                return new GameList();
+              }, transitionsBuilder:
+                      (_, Animation<double> animation, __, Widget child) {
+                return new FadeTransition(opacity: animation, child: child);
+              }));
             },
           ),
           ListTile(

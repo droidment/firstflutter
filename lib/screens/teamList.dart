@@ -1,8 +1,10 @@
+import 'package:firstflut/mixins/AppConstants.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/TeamModel.dart';
 import 'package:intl/intl.dart';
 import '../widgets/AddGameWidget.dart';
+import 'team.dart';
 import '../widgets/AppHeader.dart';
 import '../widgets/AppDrawer.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
@@ -38,10 +40,7 @@ class TeamListState extends State<TeamList> {
             showDialog(
                 context: context,
                 builder: (_) => new AlertDialog(
-                    title: new Text("Add new Team"),
-                    content: new Team(
-                        scaffoldKey: _scaffoldKey,
-                        context: context)));
+                    title: new Text("Add new Team"), content: new Team()));
           },
         ),
         drawer: new AppDrawer(
@@ -82,16 +81,21 @@ class TeamListState extends State<TeamList> {
     );
   }
 
+  final List<PopupMenuItem<String>> _popupMenuItems =
+      AppConstantsMixin.editMenuItems
+          .map((String value) => PopupMenuItem<String>(
+                value: value,
+                child: Text(value),
+              ))
+          .toList();
+
   Widget _buildListItem(BuildContext context, DocumentSnapshot teamData) {
     final record = TeamModel.fromSnapshot(teamData);
     var teamName = record.teamName ?? "";
     var homeCourt = record.homeCourt ?? "";
     var adminName = record.adminName ?? "";
-
-    String dropdownValue = '+0';
     return Padding(
-        // key: ValueKey(record.captain1),
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 8.0),
         child: Card(
           elevation: 3.0,
           child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -99,41 +103,29 @@ class TeamListState extends State<TeamList> {
               child: InkWell(
                 child: ListTile(
                   title: Text(teamName),
-                  trailing: Text(homeCourt),
-                  subtitle: Text("Admin Name $adminName"),
+                  trailing: PopupMenuButton<String>(
+                      itemBuilder: (BuildContext context) => _popupMenuItems),
+                  subtitle: Text("At $homeCourt"),
                 ),
               ),
             ),
-            ButtonTheme.bar(
-              child: ButtonBar(
-                children: <Widget>[
-                  DropdownButton<String>(
-                    value: dropdownValue,
-                    items: <String>['+0', '1', '2', '3', '4']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                  OutlineButton(
-                    highlightColor: Colors.amber,
-                    textTheme: ButtonTextTheme.normal,
-                    child: const Text('Edit',
-                        style: TextStyle(color: Colors.orange)),
-                  ),
-                  OutlineButton(
-                      highlightColor: Colors.amber,
-                      textTheme: ButtonTextTheme.normal,
-                      child: const Text('Delete',
-                          style: TextStyle(color: Colors.grey)))
-                ],
-              ),
-            ),
+            getPlayerChips(record.playerNames)
           ]),
         ));
   }
+
+  Widget getPlayerChips(List playerNames) {
+    
+      return (playerNames != null) ? Wrap(
+          alignment: WrapAlignment.start,
+          spacing: 5,
+          children: <Widget>[
+            for (var item in playerNames) getPlayerChip(item)
+          ]): getPlayerChip("No Players found");
+  }
+
+  Widget getPlayerChip(String playerName) {
+    return Chip(
+        label: Text(playerName), backgroundColor: Colors.lightGreen[100]);
+  }
 }
-
-

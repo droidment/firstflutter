@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firstflut/models/Players.dart';
 import 'package:flutter/material.dart';
-import '../models/TeamModel.dart';
+
 import '../mixins/validation_mixin.dart';
+import '../models/TeamModel.dart';
 
 class Team extends StatefulWidget {
   @override
@@ -14,8 +15,7 @@ class TeamState extends State<Team> with ValidationMixin {
   DocumentReference currentTeamReference;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        key: _scaffoldKey, body: SafeArea(child: _buildAddTeam(context)));
+    return Scaffold(key: _scaffoldKey, body: _buildAddTeam(context));
   }
 
   Widget _buildAddTeam(BuildContext _context) {
@@ -32,71 +32,90 @@ class TeamState extends State<Team> with ValidationMixin {
         0,
         true);
     return Form(
-        // key: _scaffoldKey,
-        child: Padding(
-      padding: const EdgeInsets.only(top: 40, left: 20, right: 20, bottom: 10),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            TextFormField(
-              controller: teamNameController,
-              keyboardType: TextInputType.text,
-              validator: validateInput,
-              maxLength: 32,
-              decoration: InputDecoration(
-                  labelText: 'Team Name', hasFloatingPlaceholder: true),
-            ),
-            TextFormField(
-              controller: homeCourtController,
-              maxLength: 100,
-              keyboardType: TextInputType.text,
-              validator: validateInput,
-              decoration: InputDecoration(
-                  labelText: 'Home Court Address',
-                  hasFloatingPlaceholder: true),
-            ),
-            TextFormField(
-              controller: adminContactController,
-              maxLength: 40,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                  labelText: 'Admin Contact', hasFloatingPlaceholder: true),
-            ),
-            ButtonBar(
-                mainAxisSize: MainAxisSize.min,
-                alignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  RaisedButton(
-                    color: Colors.greenAccent,
-                    highlightColor: Colors.amber,
-                    onPressed: () async {
-                      String teamName = await saveTeamDetails(team);
-                      _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                        content:
-                            new Text("Team $teamName created successfully."),
-                      ));
-                      // Navigator.of(_context, rootNavigator: true).pop();
-                      // Navigator.pop(_context);
-                    },
-                    child: Text('Save'),
-                  ),
-                  RaisedButton(
-                    color: Colors.greenAccent,
-                    highlightColor: Colors.amber,
-                    onPressed: () {
-                      String teamName = currentTeamReference.toString();
-                      showDialog(
-                          context: context,
-                          builder: (_) => new AlertDialog(
-                              title: new Text("Add players to the team $teamName"),
-                              content: _buildAddPlayers(context, currentTeamReference)));
-                    },
-                    child: Text('Add Players'),
-                  )
-                ]),
-            _buildList(_context, team.playerNames),
-          ]),
-    ));
+      // key: _scaffoldKey,
+      child: ListView(children: <Widget>[
+        TextFormField(
+          controller: teamNameController,
+          keyboardType: TextInputType.text,
+          validator: validateInput,
+          maxLength: 32,
+          decoration: InputDecoration(
+              labelText: 'Team Name', hasFloatingPlaceholder: true),
+        ),
+        TextFormField(
+          controller: homeCourtController,
+          maxLength: 100,
+          keyboardType: TextInputType.text,
+          validator: validateInput,
+          decoration: InputDecoration(
+              labelText: 'Home Court Address', hasFloatingPlaceholder: true),
+        ),
+        TextFormField(
+          controller: adminContactController,
+          maxLength: 40,
+          keyboardType: TextInputType.text,
+          decoration: InputDecoration(
+              labelText: 'Admin Contact', hasFloatingPlaceholder: true),
+        ),
+        TextFormField(
+          controller: adminContactController,
+          maxLength: 2,
+          keyboardType: TextInputType.text,
+          decoration: InputDecoration(
+              labelText: 'Waitlist Count', hasFloatingPlaceholder: true),
+        ),
+        SwitchListTile(
+            value: true,
+            title: const Text("Allow Maybe"),
+            onChanged: (value) {
+              setState(() {});
+            },
+            activeTrackColor: Colors.lightGreenAccent,
+            activeColor: Colors.green),
+        SwitchListTile(
+            value: true,
+            title: const Text("Allow Guest"),
+            onChanged: (value) {
+              setState(() {});
+            },
+            activeTrackColor: Colors.lightGreenAccent,
+            activeColor: Colors.green),
+
+        Wrap(spacing: 9.0,
+            // child: ButtonBar(
+            //     mainAxisSize: MainAxisSize.max,
+            //     alignment: MainAxisAlignment.end,
+            children: <Widget>[
+              RaisedButton(
+                color: Colors.greenAccent,
+                highlightColor: Colors.amber,
+                onPressed: () async {
+                  String teamName = await saveTeamDetails(team);
+                  _scaffoldKey.currentState.showSnackBar(new SnackBar(
+                    content: new Text("Team $teamName created successfully."),
+                  ));
+                },
+                child: Text('Save'),
+              ),
+              RaisedButton(
+                color: Colors.greenAccent,
+                highlightColor: Colors.amber,
+                onPressed: () {
+                  String teamName = currentTeamReference.toString();
+                  showDialog(
+                      context: context,
+                      builder: (_) => new AlertDialog(
+                          title: new Text("Add players to the team $teamName"),
+                          content:
+                              _buildAddPlayers(context, currentTeamReference)));
+                },
+                child: Text('Add Players'),
+              )
+            ]),
+        // ),
+        // _buildList(_context, team.playerNames),
+      ]),
+    );
   }
 
   Future<String> saveTeamDetails(TeamModel team) async {
@@ -132,20 +151,20 @@ class TeamState extends State<Team> with ValidationMixin {
     }
   }
 
-  Widget _buildAddPlayers(BuildContext _context, DocumentReference teamReference) {
+  Widget _buildAddPlayers(
+      BuildContext _context, DocumentReference teamReference) {
     // return SingleChildScrollView(child: DynamicFieldsWidget());
 
     TextEditingController nameController = TextEditingController();
     TextEditingController phoneNumController = TextEditingController();
     // TeamModel teamModel = TeamModel.fromSnapshot(teamReference.().first);
-    
+
     return Form(
       // key: _addTeamPlayersFormKey,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-
             TextFormField(
               controller: nameController,
               keyboardType: TextInputType.text,
@@ -161,13 +180,11 @@ class TeamState extends State<Team> with ValidationMixin {
               decoration: InputDecoration(
                   labelText: 'Phone Number', hasFloatingPlaceholder: true),
             ),
-
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: OutlineButton(
                 highlightColor: Colors.amber,
                 onPressed: () async {
-
                   // PlayersBloc player = new PlayersBloc(
                   //     nameController.text
                   //     );
