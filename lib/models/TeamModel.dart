@@ -10,11 +10,10 @@ class TeamModel  {
   String adminName;
   bool allowMaybe;
   bool allowGuest;
-  int maxGamePlayerCount;
-  bool allowWaitlist;
+  String waitlistCount;
 
   TeamModel(this.playerNames,this.teamName,this.homeCourt,
-      this.adminName, this.allowMaybe,this.allowGuest,this.maxGamePlayerCount, this.allowWaitlist) ;
+      this.adminName, this.allowMaybe,this.allowGuest,this.waitlistCount) ;
 
 
   Map<String, dynamic> toMap() {
@@ -25,8 +24,7 @@ class TeamModel  {
       "adminName": adminName,
       "allowMaybe": allowMaybe,
       "allowGuest": allowGuest,
-      "maxGamePlayerCount": maxGamePlayerCount,
-      "allowWaitlist": allowWaitlist,
+      "waitlistCount": waitlistCount,
     };
   }
 
@@ -37,8 +35,7 @@ class TeamModel  {
       adminName = map["AdminName"];
       allowMaybe = map["AllowMaybe"];
       allowGuest = map["AllowGuest"];
-      maxGamePlayerCount = map["MaxGamePlayerCount"];
-      allowWaitlist = map["AllowWaitlist"];
+      waitlistCount = map["WaitlistCount"];
   }
 
   Future<DocumentReference> get addTeam async {

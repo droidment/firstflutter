@@ -13,15 +13,17 @@ class Team extends StatefulWidget {
 class TeamState extends State<Team> with ValidationMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   DocumentReference currentTeamReference;
+  TextEditingController teamNameController = TextEditingController();
+    TextEditingController homeCourtController = TextEditingController();
+    TextEditingController adminContactController = TextEditingController();
+    TextEditingController waitlistController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(key: _scaffoldKey, body: _buildAddTeam(context));
   }
 
   Widget _buildAddTeam(BuildContext _context) {
-    TextEditingController teamNameController = TextEditingController();
-    TextEditingController homeCourtController = TextEditingController();
-    TextEditingController adminContactController = TextEditingController();
+    
     TeamModel team = new TeamModel(
         new List(),
         teamNameController.text,
@@ -29,8 +31,7 @@ class TeamState extends State<Team> with ValidationMixin {
         adminContactController.text,
         true,
         true,
-        0,
-        true);
+        waitlistController.text);
     return Form(
       // key: _scaffoldKey,
       child: ListView(children: <Widget>[
@@ -58,17 +59,19 @@ class TeamState extends State<Team> with ValidationMixin {
               labelText: 'Admin Contact', hasFloatingPlaceholder: true),
         ),
         TextFormField(
-          controller: adminContactController,
+          controller: waitlistController,
           maxLength: 2,
-          keyboardType: TextInputType.text,
+          keyboardType: TextInputType.number,
           decoration: InputDecoration(
               labelText: 'Waitlist Count', hasFloatingPlaceholder: true),
         ),
         SwitchListTile(
+            
             value: true,
             title: const Text("Allow Maybe"),
             onChanged: (value) {
-              setState(() {});
+              team.allowMaybe = value;
+              // setState(() {});
             },
             activeTrackColor: Colors.lightGreenAccent,
             activeColor: Colors.green),
@@ -76,7 +79,8 @@ class TeamState extends State<Team> with ValidationMixin {
             value: true,
             title: const Text("Allow Guest"),
             onChanged: (value) {
-              setState(() {});
+              team.allowGuest = value;
+              // setState(() {});
             },
             activeTrackColor: Colors.lightGreenAccent,
             activeColor: Colors.green),
@@ -94,6 +98,7 @@ class TeamState extends State<Team> with ValidationMixin {
                   _scaffoldKey.currentState.showSnackBar(new SnackBar(
                     content: new Text("Team $teamName created successfully."),
                   ));
+                  Navigator.of(_context, rootNavigator: true).pop();
                 },
                 child: Text('Save'),
               ),
