@@ -41,9 +41,7 @@ class TeamModel  {
   Future<DocumentReference> get addTeam async {
     Firestore fireStore = Firestore.instance;
     CollectionReference teamReference = fireStore.collection("Team");
-    teamReference.add(this.toMap()).then((result) {
-      return result;
-    });
+    return teamReference.add(this.toMap());
   }
 
   addPlayersToTeam(String sPlayerName){

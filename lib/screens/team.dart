@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firstflut/models/Players.dart';
+import 'package:firstflut/models/Player.dart';
 import 'package:flutter/material.dart';
 
+import '../widgets/Dialogs.dart';
 import '../mixins/validation_mixin.dart';
 import '../models/TeamModel.dart';
 
@@ -14,16 +15,16 @@ class TeamState extends State<Team> with ValidationMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   DocumentReference currentTeamReference;
   TextEditingController teamNameController = TextEditingController();
-    TextEditingController homeCourtController = TextEditingController();
-    TextEditingController adminContactController = TextEditingController();
-    TextEditingController waitlistController = TextEditingController();
+  TextEditingController homeCourtController = TextEditingController();
+  TextEditingController adminContactController = TextEditingController();
+  TextEditingController waitlistController = TextEditingController();
+  Dialogs dialogs = Dialogs();
   @override
   Widget build(BuildContext context) {
     return Scaffold(key: _scaffoldKey, body: _buildAddTeam(context));
   }
 
   Widget _buildAddTeam(BuildContext _context) {
-    
     TeamModel team = new TeamModel(
         new List(),
         teamNameController.text,
@@ -58,15 +59,8 @@ class TeamState extends State<Team> with ValidationMixin {
           decoration: InputDecoration(
               labelText: 'Admin Contact', hasFloatingPlaceholder: true),
         ),
-        TextFormField(
-          controller: waitlistController,
-          maxLength: 2,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-              labelText: 'Waitlist Count', hasFloatingPlaceholder: true),
-        ),
+
         SwitchListTile(
-            
             value: true,
             title: const Text("Allow Maybe"),
             onChanged: (value) {
@@ -84,7 +78,13 @@ class TeamState extends State<Team> with ValidationMixin {
             },
             activeTrackColor: Colors.lightGreenAccent,
             activeColor: Colors.green),
-
+        TextFormField(
+          controller: waitlistController,
+          maxLength: 2,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+              labelText: 'Waitlist Count', hasFloatingPlaceholder: true),
+        ),
         Wrap(spacing: 9.0,
             // child: ButtonBar(
             //     mainAxisSize: MainAxisSize.max,
@@ -94,28 +94,39 @@ class TeamState extends State<Team> with ValidationMixin {
                 color: Colors.greenAccent,
                 highlightColor: Colors.amber,
                 onPressed: () async {
-                  String teamName = await saveTeamDetails(team);
-                  _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                    content: new Text("Team $teamName created successfully."),
-                  ));
-                  Navigator.of(_context, rootNavigator: true).pop();
+                  DocumentReference teamRef = await onSaveTeam(team, _context);
+                  dialogs
+                      .confirmDialog(context, "Add Players",
+                          "Do you want to add members to this team?")
+                      .then((onValue) {
+                    if (onValue == ConfirmAction.ACCEPT) {
+                      String teamName = currentTeamReference.toString();
+                      showDialog(
+                          context: context,
+                          builder: (_) => new AlertDialog(
+                              title:
+                                  new Text("Add players to the team $teamName"),
+                              content: _buildAddPlayers(
+                                  context, teamRef)));
+                    }
+                  });
                 },
                 child: Text('Save'),
               ),
-              RaisedButton(
-                color: Colors.greenAccent,
-                highlightColor: Colors.amber,
-                onPressed: () {
-                  String teamName = currentTeamReference.toString();
-                  showDialog(
-                      context: context,
-                      builder: (_) => new AlertDialog(
-                          title: new Text("Add players to the team $teamName"),
-                          content:
-                              _buildAddPlayers(context, currentTeamReference)));
-                },
-                child: Text('Add Players'),
-              )
+              // RaisedButton(
+              //   color: Colors.greenAccent,
+              //   highlightColor: Colors.amber,
+              //   onPressed: () {
+              //     String teamName = currentTeamReference.toString();
+              //     showDialog(
+              //         context: context,
+              //         builder: (_) => new AlertDialog(
+              //             title: new Text("Add players to the team $teamName"),
+              //             content:
+              //                 _buildAddPlayers(context, currentTeamReference)));
+              //   },
+              //   child: Text('Add Players'),
+              // )
             ]),
         // ),
         // _buildList(_context, team.playerNames),
@@ -123,23 +134,27 @@ class TeamState extends State<Team> with ValidationMixin {
     );
   }
 
-  Future<String> saveTeamDetails(TeamModel team) async {
+  Future<DocumentReference> onSaveTeam(
+      TeamModel team, BuildContext _context) async {
+    DocumentReference teamReference = await saveTeamDetails(team);
+    DocumentSnapshot teamSnapshot = await teamReference.get();
+    String teamName = teamSnapshot.data["TeamName"];
+    dialogs.information(
+        context, "Team $teamName", "Team $teamName created successfully.");
+    Navigator.of(_context, rootNavigator: true).pop();
+    return teamReference;
+  }
+
+  Future<DocumentReference> saveTeamDetails(TeamModel team) async {
     if (team.teamName.isEmpty) {
       throw Exception;
     }
-    var teamName = team.teamName;
-    await team.addTeam.then((reference) {
-      currentTeamReference = reference;
-    });
-    return teamName;
+    await team.addTeam;
+    
+    return currentTeamReference;
   }
 
-  Future addPlayersToTeam(PlayersBloc player, TeamModel team) async {
-    if (currentTeamReference == null) {
-      await saveTeamDetails(team);
-      // currentTeamReference.updateData({"PlayerNames": player.name});
-    }
-  }
+  
 
   Widget _buildList(BuildContext context, List<String> playerNames) {
     if (playerNames == null || playerNames.length == 0) {
@@ -190,16 +205,13 @@ class TeamState extends State<Team> with ValidationMixin {
               child: OutlineButton(
                 highlightColor: Colors.amber,
                 onPressed: () async {
-                  // PlayersBloc player = new PlayersBloc(
-                  //     nameController.text
-                  //     );
-                  // await addPlayersToTeam(player,teamModel);
+                    PlayerModel player = PlayerModel(nameController.text,phoneNumController.text);
+                    await addPlayersToTeam(teamReference, player);
+                    dialogs.information(
+        context, "Player ", "Player $player added to the team successfully.");
+    // Navigator.of(_context, rootNavigator: true).pop();
 
-                  _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                    content: new Text("Added game successfully."),
-                  ));
-                  Navigator.of(_context, rootNavigator: true).pop();
-                  // Navigator.pop(_context);
+                  
                 },
                 child: Text('Submit'),
               ),
@@ -209,4 +221,14 @@ class TeamState extends State<Team> with ValidationMixin {
       ),
     );
   }
-}
+
+  Future addPlayersToTeam(DocumentReference teamReference, PlayerModel player) async {
+      // Future<DocumentSnapshot> team = teamReference.get();
+      // team.
+      // String playerNames[];
+
+      teamReference.updateData({"PlayerNames":[player.playerName]});
+      // currentTeamReference.updateData({"PlayerNames": player.name});
+    }
+  }
+// }

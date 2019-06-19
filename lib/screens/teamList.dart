@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:firstflut/mixins/AppConstants.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/TeamModel.dart';
 import 'package:intl/intl.dart';
-import '../widgets/AddGameWidget.dart';
+import '../widgets/Dialogs.dart';
 import 'team.dart';
 import '../widgets/AppHeader.dart';
 import '../widgets/AppDrawer.dart';
@@ -30,6 +32,8 @@ class TeamListState extends State<TeamList> {
   bool editable = true;
   DateTime date;
   var _scaffoldKey = GlobalKey<ScaffoldState>();
+  Dialogs dialogs = Dialogs();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,6 +93,30 @@ class TeamListState extends State<TeamList> {
               ))
           .toList();
 
+  void editDeleteTeam(DocumentSnapshot snapshot, String action) {
+    var teamName = snapshot.data["TeamName"];
+
+    if (action == "Delete") {
+      dialogs
+          .confirmDialog(context, "Delete $teamName?",
+              "Are you sure you want to delete $teamName?")
+          .then((onValue) {
+        if (onValue == ConfirmAction.ACCEPT) {
+          //print("Deleting Team");
+          Firestore.instance
+              .collection('Team')
+              .document(snapshot.documentID)
+              .delete()
+              .catchError((e) {
+            print(e);
+          });
+        }
+      });
+    }else{
+      print("Edit Team");
+    }
+  }
+
   Widget _buildListItem(BuildContext context, DocumentSnapshot teamData) {
     final record = TeamModel.fromSnapshot(teamData);
     var teamName = record.teamName ?? "";
@@ -102,11 +130,13 @@ class TeamListState extends State<TeamList> {
             Material(
               child: InkWell(
                 child: ListTile(
-                  title: Text(teamName),
-                  trailing: PopupMenuButton<String>(
-                      itemBuilder: (BuildContext context) => _popupMenuItems),
-                  subtitle: Text("At $homeCourt"),
-                ),
+                    title: Text(teamName),
+                    trailing: PopupMenuButton<String>(
+                        itemBuilder: (BuildContext context) => _popupMenuItems,
+                        onSelected: (action) {
+                          editDeleteTeam(teamData, action);
+                        }),
+                    subtitle: Text("At $homeCourt")),
               ),
             ),
             getPlayerChips(record.playerNames)
@@ -115,13 +145,11 @@ class TeamListState extends State<TeamList> {
   }
 
   Widget getPlayerChips(List playerNames) {
-    
-      return (playerNames != null) ? Wrap(
-          alignment: WrapAlignment.start,
-          spacing: 5,
-          children: <Widget>[
+    return (playerNames != null)
+        ? Wrap(alignment: WrapAlignment.start, spacing: 5, children: <Widget>[
             for (var item in playerNames) getPlayerChip(item)
-          ]): getPlayerChip("No Players found");
+          ])
+        : getPlayerChip("No Players found");
   }
 
   Widget getPlayerChip(String playerName) {
