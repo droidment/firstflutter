@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firstflut/models/Player.dart';
+import 'package:firstflut/widgets/AddPlayersToTeam.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/Dialogs.dart';
@@ -95,21 +96,21 @@ class TeamState extends State<Team> with ValidationMixin {
                 highlightColor: Colors.amber,
                 onPressed: () async {
                   DocumentReference teamRef = await onSaveTeam(team, _context);
-                  dialogs
-                      .confirmDialog(context, "Add Players",
-                          "Do you want to add members to this team?")
-                      .then((onValue) {
-                    if (onValue == ConfirmAction.ACCEPT) {
-                      String teamName = currentTeamReference.toString();
-                      showDialog(
-                          context: context,
-                          builder: (_) => new AlertDialog(
-                              title:
-                                  new Text("Add players to the team $teamName"),
-                              content: _buildAddPlayers(
-                                  context, teamRef)));
-                    }
-                  });
+                  // dialogs
+                  //     .confirmDialog(context, "Add Players",
+                  //         "Do you want to add members to this team?")
+                  //     .then((onValue) {
+                  //   if (onValue == ConfirmAction.ACCEPT) {
+                  //     String teamName = currentTeamReference.toString();
+                  //     showDialog(
+                  //         context: context,
+                  //         builder: (_) => new AlertDialog(
+                  //             title:
+                  //                 new Text("Add players to the team $teamName"),
+                  //             content: AddPlayersToTeamWidget(
+                  //                 teamReference: teamRef, scaffoldKey: _scaffoldKey,context: _context )));
+                  //   }
+                  // });
                 },
                 child: Text('Save'),
               ),
@@ -171,56 +172,7 @@ class TeamState extends State<Team> with ValidationMixin {
     }
   }
 
-  Widget _buildAddPlayers(
-      BuildContext _context, DocumentReference teamReference) {
-    // return SingleChildScrollView(child: DynamicFieldsWidget());
-
-    TextEditingController nameController = TextEditingController();
-    TextEditingController phoneNumController = TextEditingController();
-    // TeamModel teamModel = TeamModel.fromSnapshot(teamReference.().first);
-
-    return Form(
-      // key: _addTeamPlayersFormKey,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            TextFormField(
-              controller: nameController,
-              keyboardType: TextInputType.text,
-              maxLength: 30,
-              decoration: InputDecoration(
-                  labelText: 'Player Name', hasFloatingPlaceholder: true),
-            ),
-            TextFormField(
-              controller: phoneNumController,
-              maxLength: 12,
-              keyboardType: TextInputType.phone,
-              validator: validatePhone,
-              decoration: InputDecoration(
-                  labelText: 'Phone Number', hasFloatingPlaceholder: true),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: OutlineButton(
-                highlightColor: Colors.amber,
-                onPressed: () async {
-                    PlayerModel player = PlayerModel(nameController.text,phoneNumController.text);
-                    await addPlayersToTeam(teamReference, player);
-                    dialogs.information(
-        context, "Player ", "Player $player added to the team successfully.");
-    // Navigator.of(_context, rootNavigator: true).pop();
-
-                  
-                },
-                child: Text('Submit'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  
 
   Future addPlayersToTeam(DocumentReference teamReference, PlayerModel player) async {
       // Future<DocumentSnapshot> team = teamReference.get();

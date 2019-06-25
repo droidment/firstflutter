@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firstflut/mixins/AppConstants.dart';
+import 'package:firstflut/widgets/AddPlayersToTeam.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/TeamModel.dart';
@@ -93,10 +94,21 @@ class TeamListState extends State<TeamList> {
               ))
           .toList();
 
-  void editDeleteTeam(DocumentSnapshot snapshot, String action) {
-    var teamName = snapshot.data["TeamName"];
-
-    if (action == "Delete") {
+  void editDeleteTeam(DocumentSnapshot teamSnapshot, String action) {
+    var teamName = teamSnapshot.data["TeamName"];
+    // var teamRef = teamSnapshot.reference;
+    if (action == AppConstantsMixin.editMenuItems[0]) {
+      showDialog(
+          context: context,
+          builder: (_) => new AlertDialog(
+              title: new Text("Player list for $teamName"),
+              content: AddPlayersToTeamWidget(
+                  teamDocument: teamSnapshot,
+                  scaffoldKey: _scaffoldKey,
+                  context: context)));
+    } else if (action == AppConstantsMixin.editMenuItems[1]) {
+      print("Edit Team");
+    } else if (action == AppConstantsMixin.editMenuItems[2]) {
       dialogs
           .confirmDialog(context, "Delete $teamName?",
               "Are you sure you want to delete $teamName?")
@@ -105,15 +117,13 @@ class TeamListState extends State<TeamList> {
           //print("Deleting Team");
           Firestore.instance
               .collection('Team')
-              .document(snapshot.documentID)
+              .document(teamSnapshot.documentID)
               .delete()
               .catchError((e) {
             print(e);
           });
         }
       });
-    }else{
-      print("Edit Team");
     }
   }
 
