@@ -32,16 +32,22 @@ class TeamModel  {
       playerNames = map['PlayerName']?.cast<String>();
       teamName = map["TeamName"];
       homeCourt = map["HomeCourt"];
-      adminName = map["AdminName"];
-      allowMaybe = map["AllowMaybe"];
-      allowGuest = map["AllowGuest"];
-      waitlistCount = map["WaitlistCount"];
+      adminName = map["adminName"];
+      allowMaybe = map["allowMaybe"];
+      allowGuest = map["allowGuest"];
+      waitlistCount = map["waitlistCount"];
   }
 
   Future<DocumentReference> get addTeam async {
     Firestore fireStore = Firestore.instance;
     CollectionReference teamReference = fireStore.collection("Team");
     return teamReference.add(this.toMap());
+  }
+
+  updateTeam(DocumentReference teamReference) async {
+    // Firestore fireStore = Firestore.instance;
+    // CollectionReference teamReference = fireStore.collection("Team");
+    return teamReference.updateData(this.toMap());
   }
 
   addPlayersToTeam(String sPlayerName){

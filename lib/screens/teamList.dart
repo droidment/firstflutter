@@ -1,13 +1,12 @@
-import 'dart:async';
-
 import 'package:firstflut/mixins/AppConstants.dart';
+import 'package:firstflut/screens/teamWidget.dart';
 import 'package:firstflut/widgets/AddPlayersToTeam.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/TeamModel.dart';
 import 'package:intl/intl.dart';
 import '../widgets/Dialogs.dart';
-import 'team.dart';
+import 'teamWidget.dart';
 import '../widgets/AppHeader.dart';
 import '../widgets/AppDrawer.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
@@ -45,7 +44,7 @@ class TeamListState extends State<TeamList> {
             showDialog(
                 context: context,
                 builder: (_) => new AlertDialog(
-                    title: new Text("Add new Team"), content: new Team()));
+                    title: new Text("Add new Team"), content: new TeamWidget()));
           },
         ),
         drawer: new AppDrawer(
@@ -101,13 +100,21 @@ class TeamListState extends State<TeamList> {
       showDialog(
           context: context,
           builder: (_) => new AlertDialog(
-              title: new Text("Player list for $teamName"),
+              title: new Text("Players list for $teamName"),
               content: AddPlayersToTeamWidget(
                   teamDocument: teamSnapshot,
                   scaffoldKey: _scaffoldKey,
                   context: context)));
     } else if (action == AppConstantsMixin.editMenuItems[1]) {
       print("Edit Team");
+      showDialog(
+          context: context,
+          builder: (_) => new AlertDialog(
+              content: TeamWidget(
+                  teamDocument: teamSnapshot,
+                  scaffoldKey: _scaffoldKey,
+                  context: context)));
+      
     } else if (action == AppConstantsMixin.editMenuItems[2]) {
       dialogs
           .confirmDialog(context, "Delete $teamName?",
