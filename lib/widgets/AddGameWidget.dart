@@ -3,6 +3,8 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/GameModel.dart';
+import 'WaveLoadingWidget.dart';
+
 
 class AddGameWidget extends StatelessWidget {
   const AddGameWidget({
@@ -35,6 +37,13 @@ class AddGameWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            // AspectRatio(
+            //     aspectRatio: 1.0,
+            //     child: WaveLoadingWidget(
+            //       backgroundColor: Colors.green,
+            //       waveColor: Colors.red,
+            //     ),
+            //   ),
             DateTimePickerFormField(
               controller: fromDateController,
               inputType: inputType,
