@@ -7,33 +7,58 @@ import '../widgets/Dialogs.dart';
 import '../mixins/validation_mixin.dart';
 import '../models/TeamModel.dart';
 
-class Team extends StatefulWidget {
+class TeamWidget extends StatefulWidget {
+  TeamWidget({
+    Key key,
+    @required this.teamDocument,
+    @required GlobalKey<ScaffoldState> scaffoldKey,
+    @required BuildContext context,
+  })  : _scaffoldKey = scaffoldKey,
+        _context = context,
+        super(key: key);
+
+  DocumentSnapshot teamDocument;
+  final GlobalKey<ScaffoldState> _scaffoldKey;
+  final BuildContext _context;
   @override
-  State<StatefulWidget> createState() => TeamState();
+  TeamState createState() => TeamState();
 }
 
-class TeamState extends State<Team> with ValidationMixin {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+class TeamState extends State<TeamWidget> with ValidationMixin {
   DocumentReference currentTeamReference;
   TextEditingController teamNameController = TextEditingController();
   TextEditingController homeCourtController = TextEditingController();
   TextEditingController adminContactController = TextEditingController();
   TextEditingController waitlistController = TextEditingController();
   Dialogs dialogs = Dialogs();
+  TeamModel teamModel, contextModel;
+  bool isUpdate = false;
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(key: _scaffoldKey, body: _buildAddTeam(context));
+  Widget build(BuildContext _context) {
+     return Scaffold(body: _buildAddTeam(context));
+    // return _buildAddTeam(_context);
   }
 
   Widget _buildAddTeam(BuildContext _context) {
-    TeamModel team = new TeamModel(
-        new List(),
-        teamNameController.text,
-        homeCourtController.text,
-        adminContactController.text,
-        true,
-        true,
-        waitlistController.text);
+    if (widget.teamDocument != null) {
+      isUpdate = true;
+      contextModel = TeamModel.fromSnapshot(widget.teamDocument);
+      teamNameController.text = contextModel.teamName;
+      homeCourtController.text = contextModel.homeCourt;
+      adminContactController.text = contextModel.adminName;
+      waitlistController.text = contextModel.waitlistCount;
+      
+    } else {
+      contextModel = new TeamModel(
+          new List(),
+          teamNameController.text,
+          homeCourtController.text,
+          adminContactController.text,
+          true,
+          true,
+          waitlistController.text);
+    }
+
     return Form(
       // key: _scaffoldKey,
       child: ListView(children: <Widget>[
@@ -65,7 +90,7 @@ class TeamState extends State<Team> with ValidationMixin {
             value: true,
             title: const Text("Allow Maybe"),
             onChanged: (value) {
-              team.allowMaybe = value;
+              contextModel.allowMaybe = value;
               // setState(() {});
             },
             activeTrackColor: Colors.lightGreenAccent,
@@ -74,7 +99,7 @@ class TeamState extends State<Team> with ValidationMixin {
             value: true,
             title: const Text("Allow Guest"),
             onChanged: (value) {
-              team.allowGuest = value;
+              contextModel.allowGuest = value;
               // setState(() {});
             },
             activeTrackColor: Colors.lightGreenAccent,
@@ -95,7 +120,8 @@ class TeamState extends State<Team> with ValidationMixin {
                 color: Colors.greenAccent,
                 highlightColor: Colors.amber,
                 onPressed: () async {
-                  DocumentReference teamRef = await onSaveTeam(team, _context);
+                  DocumentReference teamRef =
+                      await onSaveTeam(contextModel, _context);
                   // dialogs
                   //     .confirmDialog(context, "Add Players",
                   //         "Do you want to add members to this team?")
@@ -138,8 +164,8 @@ class TeamState extends State<Team> with ValidationMixin {
   Future<DocumentReference> onSaveTeam(
       TeamModel team, BuildContext _context) async {
     DocumentReference teamReference = await saveTeamDetails(team);
-    DocumentSnapshot teamSnapshot = await teamReference.get();
-    String teamName = teamSnapshot.data["TeamName"];
+    
+    String teamName = team.teamName;
     dialogs.information(
         context, "Team $teamName", "Team $teamName created successfully.");
     Navigator.of(_context, rootNavigator: true).pop();
@@ -150,37 +176,39 @@ class TeamState extends State<Team> with ValidationMixin {
     if (team.teamName.isEmpty) {
       throw Exception;
     }
-    await team.addTeam;
-    
+    if(isUpdate){
+      await team.updateTeam(widget.teamDocument.reference);
+    }else{
+      await team.addTeam;
+    }
     return currentTeamReference;
   }
 
-  
+  // Widget _buildList(BuildContext context, List<String> playerNames) {
+  //   if (playerNames == null || playerNames.length == 0) {
+  //     return Spacer();
+  //   } else {
+  //     return ListView.builder(
+  //         itemCount: playerNames.length,
+  //         itemBuilder: (BuildContext context, int index) {
+  //           return ListTile(
+  //               title: Text(
+  //             playerNames[index],
+  //           ));
+  //         });
+  //   }
+  // }
 
-  Widget _buildList(BuildContext context, List<String> playerNames) {
-    if (playerNames == null || playerNames.length == 0) {
-      return Spacer();
-    } else {
-      return ListView.builder(
-          itemCount: playerNames.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-                title: Text(
-              playerNames[index],
-            ));
-          });
-    }
+  Future addPlayersToTeam(
+      DocumentReference teamReference, PlayerModel player) async {
+    // Future<DocumentSnapshot> team = teamReference.get();
+    // team.
+    // String playerNames[];
+
+    teamReference.updateData({
+      "PlayerNames": [player.playerName]
+    });
+    // currentTeamReference.updateData({"PlayerNames": player.name});
   }
-
-  
-
-  Future addPlayersToTeam(DocumentReference teamReference, PlayerModel player) async {
-      // Future<DocumentSnapshot> team = teamReference.get();
-      // team.
-      // String playerNames[];
-
-      teamReference.updateData({"PlayerNames":[player.playerName]});
-      // currentTeamReference.updateData({"PlayerNames": player.name});
-    }
-  }
+}
 // }

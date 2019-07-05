@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'Rsvp.dart';
 
 
 class GameModel  {
@@ -16,15 +17,18 @@ class GameModel  {
   int maybeCount;
   int waitlistCount;
   int guestCount;
+  List<RSVP> rsvps; 
+  CollectionReference gamePlayerReference;
   DocumentReference reference;
 
   GameModel(DateTime from, DateTime to, String locationStr, String cap1Name,
-      String cap2Name) {
+      String cap2Name, List<RSVP> rsvpList) {
     timeFrom = new Timestamp.fromDate(from);
     timeTo = new Timestamp.fromDate(to);
     location = locationStr;
     captain1Name = cap1Name;
     captain2Name = cap2Name;
+    rsvps = rsvpList;
   }
 
   Map<String, dynamic> toMap() {
@@ -44,6 +48,7 @@ class GameModel  {
       "WaitlistCount": 0,
       "GuestCount": 0,
       "Reference": reference
+      // "Rsvp":
     };
   }
 

@@ -120,7 +120,8 @@ class RSVP {
                 "YesCount": iYesCount,
                 "NoCount": iNoCount,
                 "MaybeCount": iMaybeCount,
-                "GuestCount": iGuestCount
+                "GuestCount": iGuestCount,
+                // "Player": player.
               });
             });
           }
