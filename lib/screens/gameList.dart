@@ -112,6 +112,7 @@ class GameListState extends State<GameList> {
         : record.waitlistCount.toString() + " Waitlist |";
     var cap1Name = record.captain1Name ?? "";
     var cap2Name = record.captain2Name ?? "";
+    
 
     String dropdownValue = '+0';
     return Padding(

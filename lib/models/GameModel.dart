@@ -22,13 +22,13 @@ class GameModel  {
   DocumentReference reference;
 
   GameModel(DateTime from, DateTime to, String locationStr, String cap1Name,
-      String cap2Name, List<RSVP> rsvpList) {
+      String cap2Name) {
     timeFrom = new Timestamp.fromDate(from);
     timeTo = new Timestamp.fromDate(to);
     location = locationStr;
     captain1Name = cap1Name;
     captain2Name = cap2Name;
-    rsvps = rsvpList;
+    // rsvps = rsvpList;
   }
 
   Map<String, dynamic> toMap() {
