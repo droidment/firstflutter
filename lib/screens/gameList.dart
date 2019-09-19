@@ -12,6 +12,7 @@ import '../widgets/AppDrawer.dart';
 import '../widgets/AddGameWidget.dart';
 import '../models/GameModel.dart';
 import '../models/Rsvp.dart';
+import 'addGame.dart';
 
 class GameList extends StatefulWidget {
   GameList({Key key, this.title})
@@ -50,11 +51,15 @@ class GameListState extends State<GameList> {
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () {
-            showDialog(
-                context: context,
-                builder: (_) => new AlertDialog(
-                    title: new Text("Add new game"),
-                    content: new AddGameWidget(addGameFormKey: _addGameFormKey, inputType: inputType, formats: formats, editable: editable, scaffoldKey: _scaffoldKey, context: context)));
+Navigator.push(context, MaterialPageRoute<DismissDialogAction>(
+                builder: (BuildContext context) => AddGameScreen(),
+                fullscreenDialog: true,
+              ));
+            // showDialog(
+            //     context: context,
+            //     builder: (_) => new AlertDialog(
+            //         title: new Text("Add new game"),
+            //         content: new AddGameWidget(addGameFormKey: _addGameFormKey, inputType: inputType, formats: formats, editable: editable, scaffoldKey: _scaffoldKey, context: context)));
           },
         ),
         // bottomNavigationBar: BottomAppBar(
